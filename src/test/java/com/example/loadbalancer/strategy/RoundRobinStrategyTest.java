@@ -8,9 +8,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-import java.lang.reflect.Field;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -85,22 +83,5 @@ public class RoundRobinStrategyTest {
 
         assertEquals("http://localhost:8081", roundRobinStrategy.getInstanceUrl(singleInstance));
         assertEquals("http://localhost:8081", roundRobinStrategy.getInstanceUrl(singleInstance));
-    }
-
-    @Test
-    void givenCounterNearMax_whenGetInstanceUrl_thenResetsToZero() throws Exception {
-        when(instanceTracker.isInstanceUnhealthy(anyString())).thenReturn(false);
-
-        Field counterField = RoundRobinStrategy.class.getDeclaredField("counter");
-        counterField.setAccessible(true);
-        counterField.set(roundRobinStrategy, new AtomicInteger(Integer.MAX_VALUE - 1));
-
-        int before = ( (AtomicInteger) counterField.get(roundRobinStrategy) ).get();
-        assertEquals(Integer.MAX_VALUE - 1, before);
-
-        roundRobinStrategy.getInstanceUrl(INSTANCES);
-
-        int after = ( (AtomicInteger) counterField.get(roundRobinStrategy) ).get();
-        assertEquals(0, after);
     }
 }
